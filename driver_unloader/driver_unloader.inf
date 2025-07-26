@@ -1,0 +1,66 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=System
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=%ManufacturerName%
+DriverVer=
+CatalogFile=driver_unloader.cat
+PnpLockdown=1
+
+[DestinationDirs]
+DefaultDestDir = 13
+driver_unloader_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+driver_unloader.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$.10.0...16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%driver_unloader.DeviceDesc%=driver_unloader_Device, Root\driver_unloader
+
+[driver_unloader_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+driver_unloader.sys
+
+;-------------- Service installation
+[driver_unloader_Device.NT.Services]
+AddService = driver_unloader,%SPSVCINST_ASSOCSERVICE%, driver_unloader_Service_Inst
+
+; -------------- driver install sections
+[driver_unloader_Service_Inst]
+DisplayName    = %driver_unloader.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\driver_unloader.sys
+
+;
+;--- driver_unloader_Device_CoInstaller_CopyFiles ------------------
+;
+
+[driver_unloader_Device_CoInstaller_CopyFiles]
+driver_unloader.sys
+
+[driver_unloader_Device.NT.Wdf]
+KmdfService =  driver_unloader, driver_unloader_wdfsect
+
+[driver_unloader_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Your Company Name"
+DiskName = "Driver Unloader Installation Disk"
+driver_unloader.DeviceDesc = "Driver Unloader Device"
+driver_unloader.SVCDESC = "Driver Unloader Service"
