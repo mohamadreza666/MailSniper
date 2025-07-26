@@ -1,0 +1,79 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=System
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=%ManufacturerName%
+DriverVer=01/01/2024,1.0.0.0
+CatalogFile=driver_unloader.cat
+
+[DestinationDirs]
+DefaultDestDir = 13
+DriverUnloader_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+driver_unloader.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$.10.0...16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%DriverUnloader.DeviceDesc%=DriverUnloader_Device, Root\DriverUnloader
+
+[DriverUnloader_Device.NT]
+CopyFiles=Drivers_Dir
+
+[Drivers_Dir]
+driver_unloader.sys
+
+;-------------- Service installation
+[DriverUnloader_Device.NT.Services]
+AddService = DriverUnloader,%SPSVCINST_ASSOCSERVICE%, DriverUnloader_Service_Inst
+
+; -------------- DriverUnloader driver service installation
+[DriverUnloader_Service_Inst]
+DisplayName    = %DriverUnloader.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\driver_unloader.sys
+
+[DriverUnloader_Device.NT.Wdf]
+KmdfService =  DriverUnloader, DriverUnloader_wdfsect
+
+[DriverUnloader_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[DriverUnloader_Device.NT.CoInstallers]
+AddReg=DriverUnloader_Device_CoInstaller_AddReg
+CopyFiles=DriverUnloader_Device_CoInstaller_CopyFiles
+
+[DriverUnloader_Device_CoInstaller_AddReg]
+HKR, CoInstallers32, "%CoInstallerDesc%", %REG_MULTI_SZ%, "DriverUnloaderCoinstaller.dll"
+
+[DriverUnloader_Device_CoInstaller_CopyFiles]
+DriverUnloaderCoinstaller.dll
+
+[DriverUnloader_Device.NT.SoftwareSettings]
+AddReg=DriverUnloader_Device_AddReg
+
+[DriverUnloader_Device_AddReg]
+HKR, Device Parameters, InterfaceGUIDs, 0x10000, "{12345678-1234-1234-1212-121212121212}"
+
+;*****************************************
+; Strings
+;*****************************************
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Custom Driver Tools"
+DiskName = "Driver Unloader Installation Disk"
+DriverUnloader.DeviceDesc = "Driver Unloader Device"
+DriverUnloader.SVCDESC = "Driver Unloader Service"
+CoInstallerDesc = "DriverUnloader Coinstaller"
